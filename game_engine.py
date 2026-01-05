@@ -4,6 +4,7 @@ import protocols as proto
 from draw import Draw
 from vector import Vector2Int, Vector2
 from observer import Event, OnEventSubscriber
+from camera import Camera
 
 
 class GameEngine(arcade.Window):
@@ -12,13 +13,18 @@ class GameEngine(arcade.Window):
                  screen_shape: Vector2Int,
                  draw: Draw,
                  bullets: proto.Bullets,
-                 player: proto.Player) -> None:
+                 player: proto.Player,
+                 enemies: list[proto.Enemy]) -> None:
         super().__init__(screen_shape.x, screen_shape.y, title, vsync=True)
         self.background_color = arcade.color.PINK
 
         self._draw = draw
         self._bullets = bullets
         self._player = player
+        self._enemies = enemies
+
+        self._camera_mover = Camera(arcade.Camera2D(), self._player)
+        self._camera_mover.camera.position = self._player.rigid_body.position.tuple
 
         self.pressed_keys = set[int]()
 
@@ -36,6 +42,9 @@ class GameEngine(arcade.Window):
     def on_fixed_update(self, delta_time: float) -> None:
         self._bullets.update(delta_time)
         self._player.update(delta_time)
+        for enemy in self._enemies:
+            enemy.update(delta_time)
+        self._camera_mover.update(delta_time)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         if button != arcade.MOUSE_BUTTON_LEFT:
@@ -52,6 +61,8 @@ class GameEngine(arcade.Window):
 
     def on_draw(self) -> None:
         self.clear()
+        self._camera_mover.camera.use()
         self._draw.bullets(self._bullets)
         self._draw.player(self._player)
+        self._draw.enemies(self._enemies)
 

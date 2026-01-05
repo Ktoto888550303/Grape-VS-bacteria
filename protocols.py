@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Callable
-
+import arcade
 from vector import Vector2
 
 
@@ -81,3 +81,23 @@ class Player(ABC):
         ...
 
 
+class Camera(ABC):
+    @property
+    @abstractmethod
+    def camera(self) -> arcade.camera.Camera2D:
+        ...
+
+    @abstractmethod
+    def update(self, dt: float) -> None:
+        ...
+
+
+class Enemy(ABC):
+    @property
+    @abstractmethod
+    def rigid_body(self) -> RigidBody:
+        ...
+
+    @abstractmethod
+    def update(self, dt: float) -> None:
+        ...

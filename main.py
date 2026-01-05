@@ -6,6 +6,7 @@ from draw import Draw
 from vector import Vector2Int, Vector2
 from game_engine import GameEngine
 from  rigid_body import RigidBody
+from enemy import Enemy
 
 TITLE = "Grapes VS bacteria"
 SCREEN_SHAPE = Vector2Int(1080, 720)
@@ -15,7 +16,15 @@ def main() -> None:
     bullets = Bullets(SCREEN_SHAPE)
     player = Player(RigidBody(SCREEN_SHAPE.as_vector2 * .5, Vector2.zero()))
 
-    engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player)
+    enemies = []
+    enemy_positions = [Vector2(100, 100)]
+
+    for position in enemy_positions:
+        enemy_body = RigidBody(position, Vector2.zero())
+        enemy = Enemy(enemy_body, player)
+        enemies.append(enemy)
+
+    engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, bullets, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
 
