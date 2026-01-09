@@ -1,4 +1,5 @@
 import arcade
+from pyglet.window.mouse import buttons_string
 
 import protocols as proto
 from draw import Draw
@@ -15,7 +16,7 @@ class GameEngine(arcade.Window):
                  bullets: proto.Bullets,
                  player: proto.Player,
                  enemies: list[proto.Enemy]) -> None:
-        super().__init__(screen_shape.x, screen_shape.y, title, vsync=True)
+        super().__init__(screen_shape.x, screen_shape.y, title, vsync=True, fullscreen=True)
         self.background_color = arcade.color.PINK
 
         self._draw = draw
@@ -55,6 +56,8 @@ class GameEngine(arcade.Window):
         self._mouse_clicked_left.invoke(Vector2(x, y))
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
+        if symbol == arcade.key.ESCAPE:
+            self.set_fullscreen(False)
         self.pressed_keys.add(symbol)
         self._keyboard_state_changed.invoke(self.pressed_keys)
 
