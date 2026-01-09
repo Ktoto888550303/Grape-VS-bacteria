@@ -24,7 +24,7 @@ class GameEngine(arcade.Window):
         self._enemies = enemies
 
         map_name = "data/map/map_for_game.tmx"
-        self._tile_map = arcade.load_tilemap(map_name,scaling=4)
+        self._tile_map = arcade.load_tilemap(map_name,scaling=3.5)
 
         self._camera_mover = Camera(arcade.Camera2D(), self._player)
         self._camera_mover.camera.position = self._player.rigid_body.position.tuple
