@@ -7,6 +7,7 @@ from vector import Vector2Int, Vector2
 from game_engine import GameEngine
 from  rigid_body import RigidBody
 from enemy import Enemy
+from gun import Gun
 
 TITLE = "Grapes VS bacteria"
 SCREEN_SHAPE = Vector2Int(1080, 720)
@@ -15,6 +16,9 @@ SCREEN_SHAPE = Vector2Int(1080, 720)
 def main() -> None:
     bullets = Bullets(SCREEN_SHAPE)
     player = Player(RigidBody(SCREEN_SHAPE.as_vector2 * .5, Vector2.zero()))
+
+    gun = Gun(bullets, _position_provider=lambda: player.rigid_body.position)
+    player.set_weapon(gun)
 
     enemies = []
     enemy_positions = [Vector2(100, 100)]
@@ -25,18 +29,16 @@ def main() -> None:
         enemies.append(enemy)
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
-    engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, bullets, player))
+    engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
 
     engine.run()
 
 
-def _on_mouse_click(position: Vector2, bullets: Bullets, player: Player) -> None:
-    if not player.can_shoot:
-        return
-
-    bullets.spawn(player.rigid_body.position, (position - player.rigid_body.position).normalize)
-    player.at_shot_was_made()
+def _on_mouse_click(position: Vector2, player: Player) -> None:
+    if player.weapon.can_shoot:
+        direction = (position - player.rigid_body.position).normalize
+        player.weapon.shoot(direction)
 
 
 def _keys_to_player_direction(keys: set[int]) -> Vector2:

@@ -65,11 +65,11 @@ class Player(ABC):
 
     @property
     @abstractmethod
-    def can_shoot(self) -> bool:
+    def weapon(self) -> "Gun":
         ...
 
     @abstractmethod
-    def at_shot_was_made(self) -> None:
+    def set_weapon(self, weapon) -> None:
         ...
 
     @abstractmethod
@@ -100,4 +100,15 @@ class Enemy(ABC):
 
     @abstractmethod
     def update(self, dt: float) -> None:
+        ...
+
+
+class Gun(ABC):
+    @property
+    @abstractmethod
+    def can_shoot(self) -> bool:
+        ...
+
+    @abstractmethod
+    def shoot(self, direction: Vector2) -> None:
         ...

@@ -1,10 +1,8 @@
 from dataclasses import dataclass, field
-from time import time
-
 import protocols as proto
 from vector import Vector2
 
-SHOOT_FREQUENCY = 10
+
 MAX_SPEED = 250
 ACCELERATION = 950
 DRAG = 2
@@ -13,22 +11,18 @@ DRAG = 2
 class Player(proto.Player):
     _rigid_body: proto.RigidBody
     _direction: Vector2 = field(init=False, default=Vector2.zero())
-
-    # Ерундистика
-    _last_shot_time: float = field(init=False, default_factory=time)
+    _weapon: proto.Gun = field(init=False, default=None)
 
     @property
     def rigid_body(self) -> proto.RigidBody:
         return self._rigid_body
 
-    # Ерундистика
     @property
-    def can_shoot(self) -> bool:
-        return time() - self._last_shot_time >= 1 / SHOOT_FREQUENCY
+    def weapon(self) -> proto.Gun:
+        return self._weapon
 
-    # Ерундистика
-    def at_shot_was_made(self) -> None:
-        self._last_shot_time = time()
+    def set_weapon(self, weapon) -> None:
+        self._weapon = weapon
 
     def set_direction(self, direction: Vector2) -> None:
         assert direction.length <= 1.00001

@@ -10,7 +10,7 @@ BULLET_SPEED = 300
 
 @dataclass(frozen=True)
 class Bullets(proto.Bullets):
-    _screen_shape: Vector2Int  # ерундистика
+    _screen_shape: Vector2Int
 
     _bullets: list[proto.Bullet] = field(init=False, default_factory=list)
 
@@ -22,7 +22,6 @@ class Bullets(proto.Bullets):
 
     def kill(self, bullet: proto.Bullet) -> None:
         assert bullet in self._bullets
-
         self._bullets.remove(bullet)
 
     def apply(self, function: Callable[[proto.Bullet], None]) -> None:
