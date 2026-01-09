@@ -23,7 +23,6 @@ class Enemy:
             direction = direction.normalize
 
         velocity = direction * self._speed
-        delta_position = velocity * dt
-        new_position = self._enemy_body.position + delta_position
-        self._enemy_body.set_position(new_position)
+        self._enemy_body.set_velocity(velocity)
+        self._enemy_body.update(Vector2.zero(), dt)
 

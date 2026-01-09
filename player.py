@@ -4,7 +4,7 @@ from time import time
 import protocols as proto
 from vector import Vector2
 
-SHOOT_FREQUENCY = 3
+SHOOT_FREQUENCY = 10
 MAX_SPEED = 250
 ACCELERATION = 950
 DRAG = 2
