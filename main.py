@@ -10,12 +10,12 @@ from enemy import Enemy
 from gun import Gun
 
 TITLE = "Grapes VS bacteria"
-SCREEN_SHAPE = Vector2Int(1080, 720)
+SCREEN_SHAPE = Vector2Int(1920, 1080)
 
 
 def main() -> None:
-    bullets = Bullets(SCREEN_SHAPE)
-    player = Player(RigidBody(SCREEN_SHAPE.as_vector2 * .5, Vector2.zero()))
+    player = Player(RigidBody(SCREEN_SHAPE.as_vector2 * 1.5, Vector2.zero()))
+    bullets = Bullets(lambda: player.rigid_body.position)
 
     gun = Gun(bullets, _position_provider=lambda: player.rigid_body.position)
     player.set_weapon(gun)

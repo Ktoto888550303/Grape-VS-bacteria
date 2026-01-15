@@ -17,7 +17,7 @@ class GameEngine(arcade.Window):
                  player: proto.Player,
                  enemies: list[proto.Enemy]) -> None:
         super().__init__(screen_shape.x, screen_shape.y, title, vsync=True, fullscreen=True)
-        self.background_color = arcade.color.PINK
+        self.background_color = (23, 8, 1)
 
         self._draw = draw
         self._bullets = bullets
@@ -25,7 +25,7 @@ class GameEngine(arcade.Window):
         self._enemies = enemies
 
         map_name = "data/map/map_for_game.tmx"
-        self._tile_map = arcade.load_tilemap(map_name,scaling=3.5)
+        self._tile_map = arcade.load_tilemap(map_name, scaling=2.5)
 
         self._camera_mover = Camera(arcade.Camera2D(), self._player)
         self._camera_mover.camera.position = self._player.rigid_body.position.tuple
@@ -74,4 +74,6 @@ class GameEngine(arcade.Window):
         self._draw.bullets(self._bullets)
         self._draw.player(self._player)
         self._draw.enemies(self._enemies)
+        self._tile_map.sprite_lists["Big_tree"].draw()
+        self._tile_map.sprite_lists["border"].draw()
 

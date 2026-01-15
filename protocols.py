@@ -32,6 +32,9 @@ class Bullets(ABC):
     def update(self, dt: float) -> None:
         ...
 
+    def _is_bullet_out_of_screen(self, bullet: Bullet, player_pos: Vector2) -> bool:
+        ...
+
 
 class RigidBody(ABC):
     @property

@@ -6,11 +6,12 @@ from vector import Vector2, Vector2Int
 from bullet import Bullet
 
 BULLET_SPEED = 300
+BULLET_MAX_DISTANCE = 1000
 
 
 @dataclass(frozen=True)
 class Bullets(proto.Bullets):
-    _screen_shape: Vector2Int
+    _player_pos: Callable[[], Vector2]
 
     _bullets: list[proto.Bullet] = field(init=False, default_factory=list)
 
@@ -29,13 +30,14 @@ class Bullets(proto.Bullets):
             function(bullet)
 
     def update(self, dt: float) -> None:
+        player_pos = self._player_pos()
         for bullet in self._bullets:
             bullet.update(dt)
-            if self._is_bullet_out_of_screen(bullet):
+            if self._is_bullet_out_of_screen(bullet, player_pos):
                 self.kill(bullet)
 
-    def _is_bullet_out_of_screen(self, bullet: proto.Bullet) -> bool:
+    def _is_bullet_out_of_screen(self, bullet: proto.Bullet, player_pos: Vector2) -> bool:
         position = bullet.position
-        return not (0 <= position.x < self._screen_shape.x and
-                    0 <= position.y < self._screen_shape.y)
+        distance = (position - player_pos).length
+        return distance > BULLET_MAX_DISTANCE
 

@@ -6,7 +6,7 @@ ENEMY_SPEED = 150
 ENEMY_RADIUS = 30
 
 @dataclass
-class Enemy:
+class Enemy(proto.Enemy):
     _enemy_body: proto.RigidBody
     _target_player: proto.Player
     _speed: float = field(default=ENEMY_SPEED)
