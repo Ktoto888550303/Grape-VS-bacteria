@@ -1,6 +1,4 @@
 import arcade
-from pyglet.window.mouse import buttons_string
-
 import protocols as proto
 from draw import Draw
 from vector import Vector2Int, Vector2
@@ -53,7 +51,6 @@ class GameEngine(arcade.Window):
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
-        self._mouse_clicked_left.invoke(Vector2(x, y))
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:

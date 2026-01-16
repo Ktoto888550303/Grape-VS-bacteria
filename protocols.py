@@ -71,12 +71,20 @@ class Player(ABC):
     def weapon(self) -> "Gun":
         ...
 
+    @property
+    @abstractmethod
+    def current_texture(self) -> arcade.Texture:
+        ...
+
     @abstractmethod
     def set_weapon(self, weapon) -> None:
         ...
 
     @abstractmethod
     def set_direction(self, direction: Vector2) -> None:
+        ...
+
+    def set_animations(self, idle_texture: arcade.Texture, attack_animation: "Animations") -> None:
         ...
 
     @abstractmethod
@@ -101,6 +109,15 @@ class Enemy(ABC):
     def rigid_body(self) -> RigidBody:
         ...
 
+    @property
+    @abstractmethod
+    def current_texture(self) -> arcade.Texture:
+        ...
+
+    @abstractmethod
+    def set_walk_animation(self, animation: "Animations") -> None:
+        ...
+
     @abstractmethod
     def update(self, dt: float) -> None:
         ...
@@ -114,4 +131,25 @@ class Gun(ABC):
 
     @abstractmethod
     def shoot(self, direction: Vector2) -> None:
+        ...
+
+
+
+class Animations(ABC):
+    @property
+    @abstractmethod
+    def current_texture(self) -> arcade.Texture:
+        ...
+
+    @property
+    @abstractmethod
+    def is_playing(self) -> bool:
+        ...
+
+    @abstractmethod
+    def update(self) -> None:
+        ...
+
+    @abstractmethod
+    def play(self, restart: bool = True) -> None:
         ...

@@ -4,28 +4,32 @@ import arcade
 
 import protocols as proto
 
-BULLET_RADIUS = 10
-BULLET_COLOR = arcade.color.BLACK
 
-ENEMY_RADIUS = 30
+ENEMY_RADIUS = 150
 ENEMY_COLOR = arcade.color.GREEN
-PLAYER_RADIUS = 50
+PLAYER_RADIUS = 100
 PLAYER_COLOR = arcade.color.GRAPE
+BULLET_IMG = arcade.load_texture("data/player/gun/bullet.png")
 
 
 @dataclass
 class Draw:
     def bullet(self, bullet: proto.Bullet) -> None:
-        arcade.draw_circle_filled(*bullet.position.tuple, BULLET_RADIUS, BULLET_COLOR)
+            position = bullet.position.tuple
+            arcade.draw_texture_rect(BULLET_IMG, arcade.rect.XYWH(*position, 20, 20))
 
     def bullets(self, bullets: proto.Bullets) -> None:
         bullets.apply(self.bullet)
 
     def player(self, player: proto.Player) -> None:
-        arcade.draw_circle_filled(*player.rigid_body.position.tuple, PLAYER_RADIUS, PLAYER_COLOR)
+        position = player.rigid_body.position.tuple
+        arcade.draw_texture_rect(player.current_texture,
+                                 arcade.rect.XYWH(*position, PLAYER_RADIUS * 2, PLAYER_RADIUS * 2))
 
     def enemy(self, enemy: proto.Enemy) -> None:
-        arcade.draw_circle_filled(*enemy.rigid_body.position.tuple, ENEMY_RADIUS, ENEMY_COLOR)
+        position = enemy.rigid_body.position.tuple
+        arcade.draw_texture_rect(enemy.current_texture,
+            arcade.rect.XYWH(*position, ENEMY_RADIUS * 2, ENEMY_RADIUS * 2))
 
     def enemies(self, enemies: list[proto.Enemy]) -> None:
         for enemy in enemies:

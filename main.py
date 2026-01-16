@@ -8,6 +8,7 @@ from game_engine import GameEngine
 from  rigid_body import RigidBody
 from enemy import Enemy
 from gun import Gun
+from animation import load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation
 
 TITLE = "Grapes VS bacteria"
 SCREEN_SHAPE = Vector2Int(1920, 1080)
@@ -20,12 +21,18 @@ def main() -> None:
     gun = Gun(bullets, _position_provider=lambda: player.rigid_body.position)
     player.set_weapon(gun)
 
+    player_idle_texture = load_player_idle_texture()
+    player_attack_texture = load_player_attack_texture()
+    player.set_animations(player_idle_texture, player_attack_texture)
+
     enemies = []
     enemy_positions = [Vector2(100, 100)]
+    enemy_walk_animation = load_enemy_walk_animation()
 
     for position in enemy_positions:
         enemy_body = RigidBody(position, Vector2.zero())
         enemy = Enemy(enemy_body, player)
+        enemy.set_walk_animation(enemy_walk_animation)
         enemies.append(enemy)
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
@@ -39,6 +46,7 @@ def _on_mouse_click(position: Vector2, player: Player) -> None:
     if player.weapon.can_shoot:
         direction = (position - player.rigid_body.position).normalize
         player.weapon.shoot(direction)
+        player.start_attack()
 
 
 def _keys_to_player_direction(keys: set[int]) -> Vector2:

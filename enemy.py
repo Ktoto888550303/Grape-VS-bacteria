@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field
 import protocols as proto
 from vector import Vector2
+from animations import Animations
+import arcade
 
 ENEMY_SPEED = 150
 ENEMY_RADIUS = 30
@@ -10,10 +12,21 @@ class Enemy(proto.Enemy):
     _enemy_body: proto.RigidBody
     _target_player: proto.Player
     _speed: float = field(default=ENEMY_SPEED)
+    _walk_animation: Animations = field(init=False, default=None)
 
     @property
     def rigid_body(self) -> proto.RigidBody:
         return self._enemy_body
+
+    @property
+    def current_texture(self) -> arcade.Texture:
+        if self._walk_animation:
+            return self._walk_animation.current_texture
+
+    def set_walk_animation(self, animation: proto.Animations) -> None:
+        self._walk_animation = animation
+        if self._walk_animation:
+            self._walk_animation.play()
 
     def update(self, dt: float) -> None:
         direction = self._target_player.rigid_body.position - self._enemy_body.position
@@ -26,3 +39,7 @@ class Enemy(proto.Enemy):
         self._enemy_body.set_velocity(velocity)
         self._enemy_body.update(Vector2.zero(), dt)
 
+        if self._walk_animation:
+            if not self._walk_animation.is_playing:
+                self._walk_animation.play()
+            self._walk_animation.update()
