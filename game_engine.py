@@ -51,6 +51,8 @@ class GameEngine(arcade.Window):
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
+        world_pos = self._camera_mover.camera.unproject((x, y))
+        self._mouse_clicked_left.invoke(Vector2(world_pos[0], world_pos[1]))
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
@@ -73,4 +75,3 @@ class GameEngine(arcade.Window):
         self._draw.enemies(self._enemies)
         self._tile_map.sprite_lists["Big_tree"].draw()
         self._tile_map.sprite_lists["border"].draw()
-

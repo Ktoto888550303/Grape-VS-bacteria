@@ -34,4 +34,3 @@ class Animations(proto.Animations):
         if restart:
             self._current_frame_idx = 0
         self._last_update_time = time()
-

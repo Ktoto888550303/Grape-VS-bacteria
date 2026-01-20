@@ -9,7 +9,7 @@ from typing import Callable
 class Gun(proto.Gun):
     _bullets: proto.Bullets
     _position_provider: Callable[[], Vector2]
-    _shoot_frequency: float = field(default=15)
+    _shoot_frequency: float = field(default=20)
     _last_shot_time: float = field(init=False, default_factory=time)
 
     @property

@@ -5,7 +5,7 @@ import protocols as proto
 from vector import Vector2, Vector2Int
 from bullet import Bullet
 
-BULLET_SPEED = 300
+BULLET_SPEED = 350
 BULLET_MAX_DISTANCE = 1000
 
 
@@ -40,4 +40,3 @@ class Bullets(proto.Bullets):
         position = bullet.position
         distance = (position - player_pos).length
         return distance > BULLET_MAX_DISTANCE
-
