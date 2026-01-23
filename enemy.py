@@ -3,16 +3,24 @@ import protocols as proto
 from vector import Vector2
 from animations import Animations
 import arcade
+from health import Health
+from time import time
 
 ENEMY_SPEED = 150
 ENEMY_RADIUS = 30
+ENEMY_DAMAGE = 20
+COOLDOWN = 0.5
 
 @dataclass
-class Enemy(proto.Enemy):
+class Enemy(proto.Enemy):  # он тоже разросся, но не так сильно как игрок
     _enemy_body: proto.RigidBody
     _target_player: proto.Player
     _speed: float = field(default=ENEMY_SPEED)
     _walk_animation: Animations = field(init=False, default=None)
+    _health: Health = field(init=False, default=None)
+    _damage: float = field(default=ENEMY_DAMAGE)
+    _last_attack_time: float = field(init=False, default=0)
+    _take_damage: bool = field(default=False)
 
     @property
     def rigid_body(self) -> proto.RigidBody:
@@ -23,21 +31,36 @@ class Enemy(proto.Enemy):
         if self._walk_animation:
             return self._walk_animation.current_texture
 
+    @property
+    def health(self) -> Health:
+        return self._health
+
     def set_walk_animation(self, animation: proto.Animations) -> None:
         self._walk_animation = animation
         if self._walk_animation:
             self._walk_animation.play()
 
-    def update(self, dt: float) -> None:
-        direction = self._target_player.rigid_body.position - self._enemy_body.position
-        if direction.length < 1:  # не забыть потом добавить урон игроку вместо остановки
-            return
-        if direction.length > 0:
-            direction = direction.normalize
+    def set_health(self, health: Health) -> None:
+        self._health = health
 
-        velocity = direction * self._speed
-        self._enemy_body.set_velocity(velocity)
-        self._enemy_body.update(Vector2.zero(), dt)
+    def update(self, dt: float) -> None:
+        current_time = time()
+        direction = self._target_player.rigid_body.position - self._enemy_body.position
+        distance = direction.length
+        if distance < ENEMY_RADIUS:
+            if current_time - self._last_attack_time >= COOLDOWN:
+                if self._target_player.health:
+                    self._target_player.health.take_damage(self._damage)
+                self._last_attack_time = current_time
+            self._enemy_body.set_velocity(Vector2.zero())
+            self._enemy_body.update(Vector2.zero(), dt)
+        else:
+            if direction.length > 0:
+                direction = direction.normalize
+
+            velocity = direction * self._speed
+            self._enemy_body.set_velocity(velocity)
+            self._enemy_body.update(Vector2.zero(), dt)
 
         if self._walk_animation:
             if not self._walk_animation.is_playing:

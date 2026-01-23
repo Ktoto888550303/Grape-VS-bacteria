@@ -17,6 +17,8 @@ class GameEngine(arcade.Window):
         super().__init__(screen_shape.x, screen_shape.y, title, vsync=True, fullscreen=True)
         self.background_color = (23, 8, 1)
 
+        self._game_over = False
+
         self._draw = draw
         self._bullets = bullets
         self._player = player
@@ -42,10 +44,31 @@ class GameEngine(arcade.Window):
         return self._keyboard_state_changed.subscriber
 
     def on_fixed_update(self, delta_time: float) -> None:
-        self._bullets.update(delta_time)
+        if self._game_over:
+            return
+
         self._player.update(delta_time)
+
+        bullets_to_remove = []
+        for bullet in self._bullets.all_bullets:
+            for enemy in self._enemies:
+                if enemy.health and enemy.health.is_alive:
+                    distance = (bullet.position - enemy.rigid_body.position).length
+                    if distance < 50:
+                        enemy.health.take_damage(bullet.damage)
+                        bullets_to_remove.append(bullet)
+                        break
+        for bullet in bullets_to_remove:
+            if bullet in self._bullets.all_bullets:
+                self._bullets.kill(bullet)
+
         for enemy in self._enemies:
             enemy.update(delta_time)
+
+        self._enemies = [enemy for enemy in self._enemies
+                         if enemy.health and enemy.health.is_alive]
+
+        self._bullets.update(delta_time)
         self._camera_mover.update(delta_time)
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:

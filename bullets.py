@@ -12,8 +12,11 @@ BULLET_MAX_DISTANCE = 1000
 @dataclass(frozen=True)
 class Bullets(proto.Bullets):
     _player_pos: Callable[[], Vector2]
-
     _bullets: list[proto.Bullet] = field(init=False, default_factory=list)
+
+    @property
+    def all_bullets(self) -> list[proto.Bullet]:
+        return list(self._bullets)
 
     def spawn(self, position: Vector2, direction: Vector2) -> None:
         assert direction.length <= 1.00001

@@ -5,10 +5,11 @@ from player import Player
 from draw import Draw
 from vector import Vector2Int, Vector2
 from game_engine import GameEngine
-from  rigid_body import RigidBody
+from rigid_body import RigidBody
 from enemy import Enemy
 from gun import Gun
 from animation import load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation
+from health import Health
 
 TITLE = "Grapes VS bacteria"
 SCREEN_SHAPE = Vector2Int(1920, 1080)
@@ -26,16 +27,30 @@ def main() -> None:
     player.set_animations(player_idle_texture, player_attack_texture)
 
     enemies = []
-    enemy_positions = [Vector2(100, 100)]
+    enemy_positions = [Vector2(100, 100), Vector2(500, 500), Vector2(800, 300)]
     enemy_walk_animation = load_enemy_walk_animation()
 
+    engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
+    # еще такой вопрос, а хорошо менять ли параметр из game engine вот так как снизу?
+    player_health = Health(
+        max_hp=100,
+        on_damage=lambda damage: player.take_damage(),
+        on_death=lambda: setattr(engine, '_game_over', True)  # я хз как по другому
+    )
+    player.set_health(player_health)
     for position in enemy_positions:
         enemy_body = RigidBody(position, Vector2.zero())
         enemy = Enemy(enemy_body, player)
         enemy.set_walk_animation(enemy_walk_animation)
+
+        enemy_health = Health(
+            max_hp=50,
+            on_damage=lambda damage: None,
+            on_death=lambda e=enemy: enemies.remove(e) if e in enemies else None
+        )
+        enemy.set_health(enemy_health)
         enemies.append(enemy)
 
-    engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
 
@@ -64,4 +79,3 @@ def _keys_to_player_direction(keys: set[int]) -> Vector2:
 
 if __name__ == "__main__":
     main()
-

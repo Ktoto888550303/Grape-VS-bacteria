@@ -2,11 +2,11 @@ import arcade
 from animations import Animations
 
 
-def load_player_attack_texture() -> arcade.Texture:
+def load_player_attack_texture() -> arcade.Texture:  # лучшая функция №1 (я потом переделаю для разных игроков)
     return arcade.load_texture("data/player/gun/grape2.png")
 
 
-def load_player_idle_texture() -> arcade.Texture:
+def load_player_idle_texture() -> arcade.Texture:  # лучшая функция №2
     return arcade.load_texture("data/player/gun/grape1.png")
 
 

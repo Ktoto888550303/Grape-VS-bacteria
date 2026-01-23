@@ -10,12 +10,22 @@ class Bullet(ABC):
     def position(self) -> Vector2:
         ...
 
+    @property
+    @abstractmethod
+    def damage(self) -> float:
+        ...
+
     @abstractmethod
     def update(self, dt: float) -> None:
         ...
 
 
 class Bullets(ABC):
+    @property
+    @abstractmethod
+    def all_bullets(self) -> list[Bullet]:
+        ...
+
     @abstractmethod
     def spawn(self, position: Vector2, velocity: Vector2) -> None:
         ...
@@ -76,6 +86,11 @@ class Player(ABC):
     def current_texture(self) -> arcade.Texture:
         ...
 
+    @property
+    @abstractmethod
+    def health(self) -> "Health":
+        ...
+
     @abstractmethod
     def set_weapon(self, weapon) -> None:
         ...
@@ -85,6 +100,18 @@ class Player(ABC):
         ...
 
     def set_animations(self, idle_texture: arcade.Texture, attack_animation: "Animations") -> None:
+        ...
+
+    @abstractmethod
+    def set_health(self, health: "Health") -> None:
+        ...
+
+    @abstractmethod
+    def start_attack(self) -> None:
+        ...
+
+    @abstractmethod
+    def take_damage(self) -> None:
         ...
 
     @abstractmethod
@@ -114,8 +141,17 @@ class Enemy(ABC):
     def current_texture(self) -> arcade.Texture:
         ...
 
+    @property
+    @abstractmethod
+    def health(self) -> "Health":
+        ...
+
     @abstractmethod
     def set_walk_animation(self, animation: "Animations") -> None:
+        ...
+
+    @abstractmethod
+    def set_health(self, health: "Health") -> None:
         ...
 
     @abstractmethod
@@ -152,4 +188,19 @@ class Animations(ABC):
 
     @abstractmethod
     def play(self, restart: bool = True) -> None:
+        ...
+
+
+class Health(ABC):
+    def __init__(self, max_hp: float,
+        on_damage: Callable[[float], None], on_death: Callable[[], None]) -> None:
+        ...
+
+    @property
+    @abstractmethod
+    def is_alive(self) -> bool:
+        ...
+
+    @abstractmethod
+    def take_damage(self, damage: float) -> bool:
         ...

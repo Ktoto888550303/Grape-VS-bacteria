@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-
+from dataclasses import dataclass, field
 from vector import Vector2
 import protocols as proto
 
+DAMAGE = 20.0
 
 @dataclass
 class Bullet(proto.Bullet):
@@ -12,6 +12,10 @@ class Bullet(proto.Bullet):
     @property
     def position(self) -> Vector2:
         return self._position
+
+    @property
+    def damage(self) -> float:
+        return DAMAGE
 
     def update(self, dt: float) -> None:
         delta_position = self._velocity * dt
