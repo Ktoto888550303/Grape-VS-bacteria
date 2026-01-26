@@ -151,7 +151,15 @@ class Enemy(ABC):
         ...
 
     @abstractmethod
+    def set_damage_texture(self, texture: arcade.Texture) -> None:  # Добавляем
+        ...
+
+    @abstractmethod
     def set_health(self, health: "Health") -> None:
+        ...
+
+    @abstractmethod
+    def take_damage(self) -> None:
         ...
 
     @abstractmethod

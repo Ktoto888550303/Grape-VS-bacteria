@@ -8,7 +8,8 @@ from game_engine import GameEngine
 from rigid_body import RigidBody
 from enemy import Enemy
 from gun import Gun
-from animation import load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation
+from animation import (load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation,
+                       load_enemy_damage_texture)
 from health import Health
 
 TITLE = "Grapes VS bacteria"
@@ -29,6 +30,7 @@ def main() -> None:
     enemies = []
     enemy_positions = [Vector2(100, 100), Vector2(500, 500), Vector2(800, 300)]
     enemy_walk_animation = load_enemy_walk_animation()
+    enemy_damage_texture = load_enemy_damage_texture()
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
     # еще такой вопрос, а хорошо менять ли параметр из game engine вот так как снизу?
@@ -42,10 +44,10 @@ def main() -> None:
         enemy_body = RigidBody(position, Vector2.zero())
         enemy = Enemy(enemy_body, player)
         enemy.set_walk_animation(enemy_walk_animation)
-
+        enemy.set_damage_texture(enemy_damage_texture)
         enemy_health = Health(
             max_hp=50,
-            on_damage=lambda damage: None,
+            on_damage=lambda d, e=enemy: e.take_damage(),
             on_death=lambda e=enemy: enemies.remove(e) if e in enemies else None
         )
         enemy.set_health(enemy_health)

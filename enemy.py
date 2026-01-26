@@ -10,17 +10,22 @@ ENEMY_SPEED = 150
 ENEMY_RADIUS = 30
 ENEMY_DAMAGE = 20
 COOLDOWN = 0.5
+DAMAGE_TIME = 0.2
 
 @dataclass
 class Enemy(proto.Enemy):  # он тоже разросся, но не так сильно как игрок
     _enemy_body: proto.RigidBody
     _target_player: proto.Player
     _speed: float = field(default=ENEMY_SPEED)
+
     _walk_animation: Animations = field(init=False, default=None)
+    _damage_texture: arcade.Texture = field(init=False, default=None)
+
     _health: Health = field(init=False, default=None)
     _damage: float = field(default=ENEMY_DAMAGE)
     _last_attack_time: float = field(init=False, default=0)
-    _take_damage: bool = field(default=False)
+    _last_damage_time: float = field(init=False, default=0)
+    _is_showing_damage: bool = field(init=False, default=False)
 
     @property
     def rigid_body(self) -> proto.RigidBody:
@@ -28,6 +33,9 @@ class Enemy(proto.Enemy):  # он тоже разросся, но не так с
 
     @property
     def current_texture(self) -> arcade.Texture:
+        current_time = time()
+        if self._is_showing_damage and current_time - self._last_damage_time < DAMAGE_TIME and self._damage_texture:
+            return self._damage_texture
         if self._walk_animation:
             return self._walk_animation.current_texture
 
@@ -40,11 +48,22 @@ class Enemy(proto.Enemy):  # он тоже разросся, но не так с
         if self._walk_animation:
             self._walk_animation.play()
 
+    def set_damage_texture(self, texture: arcade.Texture) -> None:
+        self._damage_texture = texture
+
     def set_health(self, health: Health) -> None:
         self._health = health
 
+    def take_damage(self) -> None:
+        self._last_damage_time = time()
+        self._is_showing_damage = True
+
     def update(self, dt: float) -> None:
         current_time = time()
+
+        if self._is_showing_damage and current_time - self._last_damage_time >= DAMAGE_TIME:
+            self._is_showing_damage = False
+
         direction = self._target_player.rigid_body.position - self._enemy_body.position
         distance = direction.length
         if distance < ENEMY_RADIUS:
