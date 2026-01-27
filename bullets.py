@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Callable
 
 import protocols as proto
-from vector import Vector2, Vector2Int
+from vector import Vector2
 from bullet import Bullet
 
 BULLET_SPEED = 350

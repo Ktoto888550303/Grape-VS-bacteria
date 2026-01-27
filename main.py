@@ -33,11 +33,10 @@ def main() -> None:
     enemy_damage_texture = load_enemy_damage_texture()
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
-    # еще такой вопрос, а хорошо менять ли параметр из game engine вот так как снизу?
     player_health = Health(
         max_hp=100,
         on_damage=lambda damage: player.take_damage(),
-        on_death=lambda: setattr(engine, '_game_over', True)  # я хз как по другому
+        on_death=lambda: setattr(engine, '_game_over', True)
     )
     player.set_health(player_health)
     for position in enemy_positions:
