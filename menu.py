@@ -27,7 +27,7 @@ class Button:
 @dataclass
 class Menu:
     background: arcade.Texture
-    buttons: dict[str, Button]  # name -> button
+    buttons_name: dict[str, Button]
 
     def draw(self) -> None:
         screen = arcade.get_window()
@@ -38,12 +38,12 @@ class Menu:
             arcade.rect.XYWH(screen_width / 2, screen_height / 2, screen_width, screen_height)
         )
 
-        for button in self.buttons.values():
+        for button in self.buttons_name.values():
             button.draw()
 
     def click(self, x: float, y: float) -> str:
         click_pos = Vector2(x, y)
 
-        for name, button in self.buttons.items():
+        for name, button in self.buttons_name.items():
             if button.is_clicked(click_pos):
                 return name

@@ -8,7 +8,8 @@ from health import Health
 MAX_SPEED = 250
 ACCELERATION = 950
 DRAG = 2
-
+ATTACH_DURATION = 0.4
+COOLDOWN_DAMAGE = 0.5
 
 @dataclass
 class Player(proto.Player):
@@ -20,10 +21,8 @@ class Player(proto.Player):
     _is_attacking: bool = field(init=False, default=False)  # я попозже разберу этот ужас, не проклинайте меня (((
     _current_texture: arcade.Texture = field(init=False, default=None)
     _attack_start_time: float = field(init=False, default=0)
-    _attack_duration: float = field(default=0.3)
     _health: Health = field(init=False, default=None)
     _damage_taken_time: float = field(init=False, default=0)
-    _damage_indicator: float = field(default=0.5)
     _is_damaged: bool = field(init=False, default=False)
 
     @property
@@ -69,7 +68,7 @@ class Player(proto.Player):
 
     def update(self, dt: float) -> None:
         current_time = time()
-        if self._is_damaged and current_time - self._damage_taken_time >= self._damage_indicator:
+        if self._is_damaged and current_time - self._damage_taken_time >= COOLDOWN_DAMAGE:
             self._is_damaged = False
 
         acceleration = self._direction * ACCELERATION
@@ -80,6 +79,6 @@ class Player(proto.Player):
             self._rigid_body.set_velocity(velocity.normalize * MAX_SPEED)
 
         if self._is_attacking:
-            if current_time - self._attack_start_time >= self._attack_duration:
+            if current_time - self._attack_start_time >= ATTACH_DURATION:
                 self._is_attacking = False
                 self._current_texture = self._idle_texture

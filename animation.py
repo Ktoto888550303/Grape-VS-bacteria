@@ -2,6 +2,8 @@ import arcade
 from animations import Animations
 
 
+ENEMY_FRAME_TIME = 0.8
+
 def load_player_attack_texture() -> arcade.Texture:  # лучшая функция №1 (я потом переделаю для разных игроков)
     return arcade.load_texture("data/player/gun/grape2.png")
 
@@ -19,7 +21,7 @@ def load_enemy_walk_animation() -> Animations:
 
     return Animations(
         textures=textures,
-        frame_duration=0.8,
+        frame_duration=ENEMY_FRAME_TIME,
     )
 
 def load_enemy_damage_texture() -> arcade.Texture:

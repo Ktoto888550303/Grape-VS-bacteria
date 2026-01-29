@@ -34,7 +34,7 @@ class Enemy(proto.Enemy):  # он тоже разросся, но не так с
     @property
     def current_texture(self) -> arcade.Texture:
         current_time = time()
-        if self._is_showing_damage and current_time - self._last_damage_time < DAMAGE_TIME and self._damage_texture:
+        if self._is_showing_damage and current_time - self._last_damage_time < DAMAGE_TIME:
             return self._damage_texture
         if self._walk_animation:
             return self._walk_animation.current_texture

@@ -33,23 +33,20 @@ def main() -> None:
     enemy_damage_texture = load_enemy_damage_texture()
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
-    player_health = Health(
-        max_hp=100,
-        on_damage=lambda damage: player.take_damage(),
-        on_death=lambda: setattr(engine, '_game_over', True)
-    )
+    player_health = Health(max_hp=100)
     player.set_health(player_health)
+    player_health.damaged.subscribe(lambda damage: player.take_damage())
+    player_health.died.subscribe(lambda: engine.player_dead())
+
     for position in enemy_positions:
         enemy_body = RigidBody(position, Vector2.zero())
         enemy = Enemy(enemy_body, player)
         enemy.set_walk_animation(enemy_walk_animation)
         enemy.set_damage_texture(enemy_damage_texture)
-        enemy_health = Health(
-            max_hp=50,
-            on_damage=lambda d, e=enemy: e.take_damage(),
-            on_death=lambda e=enemy: enemies.remove(e) if e in enemies else None
-        )
+        enemy_health = Health(max_hp=50)
         enemy.set_health(enemy_health)
+        enemy_health.damaged.subscribe(lambda damage: enemy.take_damage())
+        enemy_health.died.subscribe(lambda: engine.enemy_dead(enemy))
         enemies.append(enemy)
 
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))

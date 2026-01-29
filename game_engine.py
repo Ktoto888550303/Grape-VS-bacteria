@@ -47,40 +47,47 @@ class GameEngine(arcade.Window):
     def keyboard_state_changed(self) -> OnEventSubscriber[set[int], None]:
         return self._keyboard_state_changed.subscriber
 
+    def player_dead(self) -> None:
+        self._game_over = True
+
+    def enemy_dead(self, enemy) -> None:
+        if enemy in self._enemies:
+            self._enemies.remove(enemy)
+
     def _menu_game(self) -> None:
-        background_texture = arcade.load_texture("data/scene/menu.jpg")
-        exit_texture = arcade.load_texture("data/scene/exit.png")
-        continue_texture = arcade.load_texture("data/scene/contine.png")
-        new_game_texture = arcade.load_texture("data/scene/new_game.png")
+        background_menu = arcade.load_texture("data/scene/menu.jpg")
+        exit_button = arcade.load_texture("data/scene/exit.png")
+        continue_button = arcade.load_texture("data/scene/contine.png")
+        new_game = arcade.load_texture("data/scene/new_game.png")
 
         button_width = 400
         button_height = 100
         button_size = Vector2(button_width, button_height)
 
-        button_spacing = 120
+        spacing = 120
         start_y = 250
 
         buttons = {
             "exit": Button(
-                texture=exit_texture,
+                texture=exit_button,
                 center=Vector2(100 + button_width / 2, start_y),
                 size=button_size
             ),
             "continue": Button(
-                texture=continue_texture,
-                center=Vector2(100 + button_width / 2, start_y + button_spacing),
+                texture=continue_button,
+                center=Vector2(100 + button_width / 2, start_y + spacing),
                 size=button_size
             ),
             "new_game": Button(
-                texture=new_game_texture,
-                center=Vector2(100 + button_width / 2, start_y + button_spacing * 2),
+                texture=new_game,
+                center=Vector2(100 + button_width / 2, start_y + spacing * 2),
                 size=button_size
             )
         }
 
         self._menu = Menu(
-            background=background_texture,
-            buttons=buttons
+            background=background_menu,
+            buttons_name=buttons
         )
 
     def on_fixed_update(self, delta_time: float) -> None:

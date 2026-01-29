@@ -1,14 +1,13 @@
-from typing import Callable
 import protocols as proto
+from observer import Event
 
 
 class Health(proto.Health):
-    def __init__(self, max_hp: float,
-        on_damage: Callable[[float], None], on_death: Callable[[], None]) -> None:
+    def __init__(self, max_hp: float) -> None:
         self.max_hp = max_hp
         self.current_hp = max_hp
-        self.on_damage = on_damage
-        self.on_death = on_death
+        self.damaged = Event[float]()
+        self.died = Event()
 
     @property
     def is_alive(self) -> bool:
@@ -20,8 +19,9 @@ class Health(proto.Health):
         self.current_hp -= damage
         if self.current_hp < 0:
             self.current_hp = 0
-        if self.on_damage:
-            self.on_damage(damage)
-        if not self.is_alive and self.on_death:
-            self.on_death()
+
+        self.damaged.invoke(damage)
+
+        if not self.is_alive:
+            self.died.invoke()
         return True
