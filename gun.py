@@ -14,7 +14,7 @@ class Gun(proto.Gun):
 
     @property
     def can_shoot(self) -> bool:
-        return time() - self._last_shot_time >= 1 / self._shoot_frequency
+        return time() - self._last_shot_time >= 4 / self._shoot_frequency
 
     def shoot(self, direction: Vector2) -> None:
         if not self.can_shoot:

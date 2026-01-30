@@ -7,6 +7,7 @@ from vector import Vector2Int, Vector2
 from game_engine import GameEngine
 from rigid_body import RigidBody
 from enemy import Enemy
+from enemy_spawner import EnemySpawner
 from gun import Gun
 from animation import (load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation,
                        load_enemy_damage_texture)
@@ -28,9 +29,13 @@ def main() -> None:
     player.set_animations(player_idle_texture, player_attack_texture)
 
     enemies = []
-    enemy_positions = [Vector2(100, 100), Vector2(500, 500), Vector2(800, 300)]
-    enemy_walk_animation = load_enemy_walk_animation()
-    enemy_damage_texture = load_enemy_damage_texture()
+
+    enemy_walk = load_enemy_walk_animation("base")
+    enemy_damage = load_enemy_damage_texture("base")
+
+    fast_enemy_walk = load_enemy_walk_animation("speed")
+    fast_enemy_damage = load_enemy_damage_texture("speed")
+    spawner = EnemySpawner(player, enemy_walk, enemy_damage, fast_enemy_walk, fast_enemy_damage)
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
     player_health = Health(max_hp=100)
@@ -38,16 +43,10 @@ def main() -> None:
     player_health.damaged.subscribe(lambda damage: player.take_damage())
     player_health.died.subscribe(lambda: engine.player_dead())
 
-    for position in enemy_positions:
-        enemy_body = RigidBody(position, Vector2.zero())
-        enemy = Enemy(enemy_body, player)
-        enemy.set_walk_animation(enemy_walk_animation)
-        enemy.set_damage_texture(enemy_damage_texture)
-        enemy_health = Health(max_hp=50)
-        enemy.set_health(enemy_health)
-        enemy_health.damaged.subscribe(lambda damage: enemy.take_damage())
-        enemy_health.died.subscribe(lambda: engine.enemy_dead(enemy))
-        enemies.append(enemy)
+    enemies.extend(spawner.spawn_enemies(10))
+
+    for enemy in enemies:
+        _subscribe_enemy_events(enemy, engine)
 
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
@@ -61,6 +60,11 @@ def _on_mouse_click(position: Vector2, player: Player) -> None:
         player.weapon.shoot(direction)
         player.start_attack()
 
+
+def _subscribe_enemy_events(enemy: Enemy, engine: GameEngine) -> None:
+    if enemy.health:
+        enemy.health.damaged.subscribe(lambda damage: enemy.take_damage())
+        enemy.health.died.subscribe(lambda: engine.enemy_dead(enemy))
 
 def _keys_to_player_direction(keys: set[int]) -> Vector2:
     d_is_pressed = arcade.key.D in keys

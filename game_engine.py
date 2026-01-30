@@ -98,19 +98,20 @@ class GameEngine(arcade.Window):
 
         bullets_to_remove = []
         for bullet in self._bullets.all_bullets:
-            for enemy in self._enemies:
-                if enemy.health and enemy.health.is_alive:
-                    distance = (bullet.position - enemy.rigid_body.position).length
+            for enemies in self._enemies:
+                if enemies.health and enemies.health.is_alive:
+                    distance = (bullet.position - enemies.rigid_body.position).length
                     if distance < 50:
-                        enemy.health.take_damage(bullet.damage)
+                        enemies.health.take_damage(bullet.damage)
                         bullets_to_remove.append(bullet)
                         break
         for bullet in bullets_to_remove:
             if bullet in self._bullets.all_bullets:
                 self._bullets.kill(bullet)
 
-        for enemy in self._enemies:
-            enemy.update(delta_time)
+        for enemies in self._enemies:
+            other_enemies = [enemy for enemy in self._enemies if enemy.health and enemy.health.is_alive]
+            enemies.update(delta_time, other_enemies)
 
         self._enemies = [enemy for enemy in self._enemies
                          if enemy.health and enemy.health.is_alive]
@@ -126,7 +127,7 @@ class GameEngine(arcade.Window):
             if clicked_button == 'exit':
                 self.close()
             elif clicked_button == 'continue':
-                pass
+                ...
             elif clicked_button == 'new_game':
                 self._in_menu = False
         else:

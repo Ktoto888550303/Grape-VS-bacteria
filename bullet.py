@@ -1,8 +1,8 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from vector import Vector2
 import protocols as proto
 
-DAMAGE = 20.0
+DAMAGE = 15.0
 
 @dataclass
 class Bullet(proto.Bullet):
