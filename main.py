@@ -12,6 +12,7 @@ from gun import Gun
 from animation import (load_player_attack_texture, load_player_idle_texture, load_enemy_walk_animation,
                        load_enemy_damage_texture)
 from health import Health
+from sound import Sound
 
 TITLE = "Grapes VS bacteria"
 SCREEN_SHAPE = Vector2Int(1920, 1080)
@@ -38,15 +39,22 @@ def main() -> None:
     spawner = EnemySpawner(player, enemy_walk, enemy_damage, fast_enemy_walk, fast_enemy_damage)
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
+
+    sound_manager = Sound()
+    sound_manager.play_background_music()
+
     player_health = Health(max_hp=100)
     player.set_health(player_health)
     player_health.damaged.subscribe(lambda damage: player.take_damage())
+    player_health.damaged.subscribe(lambda damage: sound_manager.play_hit_player())
     player_health.died.subscribe(lambda: engine.player_dead())
+    player_health.died.subscribe(lambda: sound_manager.play_player_dead())
+    player_health.died.subscribe(lambda: sound_manager.stop_background_music())
 
     enemies.extend(spawner.spawn_enemies(10))
 
     for enemy in enemies:
-        _subscribe_enemy_events(enemy, engine)
+        _subscribe_enemy_events(enemy, engine, sound_manager)
 
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
@@ -61,9 +69,10 @@ def _on_mouse_click(position: Vector2, player: Player) -> None:
         player.start_attack()
 
 
-def _subscribe_enemy_events(enemy: Enemy, engine: GameEngine) -> None:
+def _subscribe_enemy_events(enemy: Enemy, engine: GameEngine, sound) -> None:
     if enemy.health:
         enemy.health.damaged.subscribe(lambda damage: enemy.take_damage())
+        enemy.health.damaged.subscribe(lambda damage: sound.play_hit_enemy())
         enemy.health.died.subscribe(lambda: engine.enemy_dead(enemy))
 
 def _keys_to_player_direction(keys: set[int]) -> Vector2:

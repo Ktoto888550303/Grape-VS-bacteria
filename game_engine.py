@@ -5,6 +5,7 @@ from vector import Vector2Int, Vector2
 from observer import Event, OnEventSubscriber
 from camera import Camera
 from menu import Menu, Button
+from pathlib import Path
 
 
 class GameEngine(arcade.Window):
@@ -26,7 +27,7 @@ class GameEngine(arcade.Window):
         self._player = player
         self._enemies = enemies
 
-        map_name = "data/map/map_for_game.tmx"
+        map_name = Path("data" )/ "map" / "map_for_game.tmx"
         self._tile_map = arcade.load_tilemap(map_name, scaling=2.5)
 
         self._camera_mover = Camera(arcade.Camera2D(), self._player)
@@ -47,18 +48,11 @@ class GameEngine(arcade.Window):
     def keyboard_state_changed(self) -> OnEventSubscriber[set[int], None]:
         return self._keyboard_state_changed.subscriber
 
-    def player_dead(self) -> None:
-        self._game_over = True
-
-    def enemy_dead(self, enemy) -> None:
-        if enemy in self._enemies:
-            self._enemies.remove(enemy)
-
     def _menu_game(self) -> None:
-        background_menu = arcade.load_texture("data/scene/menu.jpg")
-        exit_button = arcade.load_texture("data/scene/exit.png")
-        continue_button = arcade.load_texture("data/scene/contine.png")
-        new_game = arcade.load_texture("data/scene/new_game.png")
+        background_menu = arcade.load_texture(Path("data") / "scene" / "menu.jpg")
+        exit_button = arcade.load_texture(Path("data") / "scene" / "exit.png")
+        continue_button = arcade.load_texture(Path("data") / "scene" / "contine.png")
+        new_game = arcade.load_texture(Path("data") / "scene" / "new_game.png")
 
         button_width = 400
         button_height = 100
@@ -68,27 +62,19 @@ class GameEngine(arcade.Window):
         start_y = 250
 
         buttons = {
-            "exit": Button(
-                texture=exit_button,
-                center=Vector2(100 + button_width / 2, start_y),
-                size=button_size
-            ),
-            "continue": Button(
-                texture=continue_button,
-                center=Vector2(100 + button_width / 2, start_y + spacing),
-                size=button_size
-            ),
-            "new_game": Button(
-                texture=new_game,
-                center=Vector2(100 + button_width / 2, start_y + spacing * 2),
-                size=button_size
-            )
+            "exit": Button(exit_button, Vector2(100 + button_width / 2, start_y), button_size),
+            "continue": Button(continue_button, Vector2(100 + button_width / 2, start_y + spacing), button_size),
+            "new_game": Button(new_game, Vector2(100 + button_width / 2, start_y + spacing * 2), button_size)
         }
 
-        self._menu = Menu(
-            background=background_menu,
-            buttons_name=buttons
-        )
+        self._menu = Menu(background_menu, buttons)
+
+    def player_dead(self) -> None:
+        self._game_over = True
+
+    def enemy_dead(self, enemy) -> None:
+        if enemy in self._enemies:
+            self._enemies.remove(enemy)
 
     def on_fixed_update(self, delta_time: float) -> None:
         if self._in_menu or self._game_over:

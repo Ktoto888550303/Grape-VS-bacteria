@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import arcade
-
+from pathlib import Path
 import protocols as proto
 
 
@@ -9,7 +9,7 @@ ENEMY_RADIUS = 150
 ENEMY_COLOR = arcade.color.GREEN
 PLAYER_RADIUS = 100
 PLAYER_COLOR = arcade.color.GRAPE
-BULLET_IMG = arcade.load_texture("data/player/gun/bullet.png")
+BULLET_IMG = arcade.load_texture(Path("data") / "player" / "gun" / "bullet.png")
 
 
 @dataclass
