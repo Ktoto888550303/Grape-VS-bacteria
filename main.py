@@ -52,11 +52,16 @@ def main() -> None:
     player_health.died.subscribe(lambda: sound_manager.play_player_dead())
     player_health.died.subscribe(lambda: sound_manager.stop_background_music())
 
-    enemies.extend(spawner.spawn_enemies(10))
+    levels = [
+        spawner.spawn_enemies(5),
+        spawner.spawn_enemies(10),
+        spawner.spawn_enemies(15)
+    ]
+    for level_enemies in levels:
+        for enemy in level_enemies:
+            _subscribe_enemy_events(enemy, engine, sound_manager)
 
-    for enemy in enemies:
-        _subscribe_enemy_events(enemy, engine, sound_manager)
-
+    engine.set_levels(levels)
     engine.mouse_clicked.subscribe(lambda position: _on_mouse_click(position, player))
     engine.keyboard_state_changed.subscribe(lambda keys: player.set_direction(_keys_to_player_direction(keys)))
 

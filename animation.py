@@ -42,3 +42,11 @@ def load_video_frames() -> list[arcade.Texture]:
         texture = arcade.load_texture(frame_path)
         frames.append(texture)
     return frames
+
+def load_between_lvl() -> list[arcade.Texture]:
+    frames = []
+    for i in range(1, 21):
+        frame_path = Path("data") / "video" / f"load{i}.jpg"
+        texture = arcade.load_texture(frame_path)
+        frames.append(texture)
+    return frames

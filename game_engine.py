@@ -30,6 +30,9 @@ class GameEngine(arcade.Window):
         self._player = player
         self._enemies = enemies
 
+        self._current_level = 0
+        self._levels = list()
+
         map_name = Path("data") / "map" / "map_for_game.tmx"
         self._tile_map = arcade.load_tilemap(map_name, scaling=2.5)
 
@@ -41,7 +44,13 @@ class GameEngine(arcade.Window):
 
         self._health_label = UILabel(text=f"Health: {self._player.health.current_hp if self._player.health else 0}",
                                      font_size=40, text_color=arcade.color.WHITE, x=20, y=self.height - 100)
+
+        self._level_label = UILabel(text=f"Level: {self._current_level + 1}", font_size=30,
+                                    text_color=arcade.color.WHITE, x=20, y=self.height - 250)
+
         self._ui_manager.add(self._health_label)
+        self._ui_manager.add(self._level_label)
+
         self._menu_game()
 
         self.pressed_keys = set[int]()
@@ -58,6 +67,25 @@ class GameEngine(arcade.Window):
     @property
     def keyboard_state_changed(self) -> OnEventSubscriber[set[int], None]:
         return self._keyboard_state_changed.subscriber
+
+    def _update_level_label(self) -> None:
+        if self._level_label:
+            self._level_label.text = f"Level: {self._current_level + 1}"
+
+    def _check_level_completion(self) -> None:
+        if not self._levels:
+            return
+        alive_enemies = [e for e in self._enemies if e.health and e.health.is_alive]
+        if not alive_enemies:
+            self._current_level += 1
+            if self._current_level >= len(self._levels):
+                self._game_over = True
+            else:
+                self._start_next_level()
+            self._update_level_label()
+
+    def _start_next_level(self) -> None:
+        self._enemies = self._levels[self._current_level].copy()
 
     def _update_health_label(self) -> None:
         if self._player.health:
@@ -86,6 +114,13 @@ class GameEngine(arcade.Window):
 
     def player_dead(self) -> None:
         self._game_over = True
+
+    def set_levels(self, levels: list[list[proto.Enemy]]) -> None:
+        self._levels = levels
+        if self._levels:
+            self._enemies = self._levels[0].copy()
+            self._current_level = 0
+            self._update_level_label()
 
     def enemy_dead(self, enemy) -> None:
         if enemy in self._enemies:
@@ -124,10 +159,13 @@ class GameEngine(arcade.Window):
 
         self._bullets.update(delta_time)
         self._camera_mover.update(delta_time)
+        self._check_level_completion()
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
+        if self._playing_video:
+            self._video.stop()
         if self._in_menu:
             clicked_button = self._menu.click(x, y)
             if clicked_button == 'exit':
@@ -137,7 +175,7 @@ class GameEngine(arcade.Window):
             elif clicked_button == 'new_game':
                 self._in_menu = False
                 self._playing_video = True
-                self._video.start()
+                self._video.start("intro")
                 self._update_health_label()
         else:
             world_pos = self._camera_mover.camera.unproject((x, y))
