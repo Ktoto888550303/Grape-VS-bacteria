@@ -1,4 +1,5 @@
 import arcade
+from arcade.gui import UIManager, UILabel
 import protocols as proto
 from draw import Draw
 from vector import Vector2Int, Vector2
@@ -27,12 +28,18 @@ class GameEngine(arcade.Window):
         self._player = player
         self._enemies = enemies
 
-        map_name = Path("data" )/ "map" / "map_for_game.tmx"
+        map_name = Path("data") / "map" / "map_for_game.tmx"
         self._tile_map = arcade.load_tilemap(map_name, scaling=2.5)
 
         self._camera_mover = Camera(arcade.Camera2D(), self._player)
         self._camera_mover.camera.position = self._player.rigid_body.position.tuple
 
+        self._ui_manager = UIManager()
+        self._ui_manager.enable()
+
+        self._health_label = UILabel(text=f"Health: {self._player.health.current_hp if self._player.health else 0}",
+                                     font_size=40, text_color=arcade.color.WHITE, x=20, y=self.height - 100)
+        self._ui_manager.add(self._health_label)
         self._menu_game()
 
         self.pressed_keys = set[int]()
@@ -47,6 +54,10 @@ class GameEngine(arcade.Window):
     @property
     def keyboard_state_changed(self) -> OnEventSubscriber[set[int], None]:
         return self._keyboard_state_changed.subscriber
+
+    def _update_health_label(self) -> None:
+        if self._player.health:
+            self._health_label.text = f"Health: {self._player.health.current_hp}"
 
     def _menu_game(self) -> None:
         background_menu = arcade.load_texture(Path("data") / "scene" / "menu.jpg")
@@ -116,6 +127,7 @@ class GameEngine(arcade.Window):
                 ...
             elif clicked_button == 'new_game':
                 self._in_menu = False
+                self._update_health_label()
         else:
             world_pos = self._camera_mover.camera.unproject((x, y))
             self._mouse_clicked_left.invoke(Vector2(world_pos[0], world_pos[1]))
@@ -146,3 +158,4 @@ class GameEngine(arcade.Window):
             self._draw.enemies(self._enemies)
             self._tile_map.sprite_lists["Big_tree"].draw()
             self._tile_map.sprite_lists["border"].draw()
+            self._ui_manager.draw()

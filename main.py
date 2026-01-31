@@ -22,7 +22,10 @@ def main() -> None:
     player = Player(RigidBody(SCREEN_SHAPE.as_vector2 * 1.5, Vector2.zero()))
     bullets = Bullets(lambda: player.rigid_body.position)
 
-    gun = Gun(bullets, _position_provider=lambda: player.rigid_body.position)
+    sound_manager = Sound()
+    sound_manager.play_background_music()
+
+    gun = Gun(bullets, _position_provider=lambda: player.rigid_body.position, _sound_manager=sound_manager)
     player.set_weapon(gun)
 
     player_idle_texture = load_player_idle_texture()
@@ -40,13 +43,11 @@ def main() -> None:
 
     engine = GameEngine(TITLE, SCREEN_SHAPE, Draw(), bullets, player, enemies)
 
-    sound_manager = Sound()
-    sound_manager.play_background_music()
-
     player_health = Health(max_hp=100)
     player.set_health(player_health)
     player_health.damaged.subscribe(lambda damage: player.take_damage())
     player_health.damaged.subscribe(lambda damage: sound_manager.play_hit_player())
+    player_health.damaged.subscribe(lambda damage: engine._update_health_label())
     player_health.died.subscribe(lambda: engine.player_dead())
     player_health.died.subscribe(lambda: sound_manager.play_player_dead())
     player_health.died.subscribe(lambda: sound_manager.stop_background_music())
