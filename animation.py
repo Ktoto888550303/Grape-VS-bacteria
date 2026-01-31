@@ -34,3 +34,11 @@ def load_enemy_damage_texture(enemy: str) -> arcade.Texture:
         return arcade.load_texture(Path("data") / "enemy" / "damage.png")
     elif enemy == "speed":
         return arcade.load_texture(Path("data") / "enemy" / "damage2.png")
+
+def load_video_frames() -> list[arcade.Texture]:
+    frames = []
+    for i in range(1, 40):
+        frame_path = Path("data") / "video" / f"frame{i}.jpg"
+        texture = arcade.load_texture(frame_path)
+        frames.append(texture)
+    return frames

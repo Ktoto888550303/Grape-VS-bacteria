@@ -7,6 +7,7 @@ from observer import Event, OnEventSubscriber
 from camera import Camera
 from menu import Menu, Button
 from pathlib import Path
+from video import Video
 
 
 class GameEngine(arcade.Window):
@@ -22,6 +23,7 @@ class GameEngine(arcade.Window):
 
         self._game_over = False
         self._in_menu = True
+        self._playing_video = False
 
         self._draw = draw
         self._bullets = bullets
@@ -46,6 +48,8 @@ class GameEngine(arcade.Window):
 
         self._mouse_clicked_left = Event[Vector2, None]()
         self._keyboard_state_changed = Event[set[int], None]()
+
+        self._video = Video()
 
     @property
     def mouse_clicked(self) -> OnEventSubscriber[Vector2, None]:
@@ -88,6 +92,11 @@ class GameEngine(arcade.Window):
             self._enemies.remove(enemy)
 
     def on_fixed_update(self, delta_time: float) -> None:
+        if self._playing_video:
+            self._video.update()
+            if self._video.is_finished:
+                self._playing_video = False
+            return
         if self._in_menu or self._game_over:
             return
 
@@ -127,6 +136,8 @@ class GameEngine(arcade.Window):
                 ...
             elif clicked_button == 'new_game':
                 self._in_menu = False
+                self._playing_video = True
+                self._video.start()
                 self._update_health_label()
         else:
             world_pos = self._camera_mover.camera.unproject((x, y))
@@ -146,7 +157,9 @@ class GameEngine(arcade.Window):
 
     def on_draw(self) -> None:
         self.clear()
-        if self._in_menu:
+        if self._playing_video:
+            self._video.draw(self.width / 2, self.height / 2, self.width, self.height)
+        elif self._in_menu:
             self._menu.draw()
         else:
             self._tile_map.sprite_lists["down1"].draw()
