@@ -24,7 +24,7 @@ class GameEngine(arcade.Window):
         self._game_over = False
         self._in_menu = True
         self._playing_video = False
-
+        self._between_levels = False
         self._draw = draw
         self._bullets = bullets
         self._player = player
@@ -46,7 +46,7 @@ class GameEngine(arcade.Window):
                                      font_size=40, text_color=arcade.color.WHITE, x=20, y=self.height - 100)
 
         self._level_label = UILabel(text=f"Level: {self._current_level + 1}", font_size=30,
-                                    text_color=arcade.color.WHITE, x=20, y=self.height - 250)
+                                    text_color=arcade.color.WHITE, x=20, y=self.height - 200)
 
         self._ui_manager.add(self._health_label)
         self._ui_manager.add(self._level_label)
@@ -77,15 +77,16 @@ class GameEngine(arcade.Window):
             return
         alive_enemies = [e for e in self._enemies if e.health and e.health.is_alive]
         if not alive_enemies:
-            self._current_level += 1
-            if self._current_level >= len(self._levels):
+            if self._current_level + 1 >= len(self._levels):
                 self._game_over = True
-            else:
-                self._start_next_level()
-            self._update_level_label()
+                return
+            self._between_levels = True
+            self._playing_video = True
+            self._video.start("between_levels")
 
     def _start_next_level(self) -> None:
-        self._enemies = self._levels[self._current_level].copy()
+        if self._current_level < len(self._levels):
+            self._enemies = self._levels[self._current_level].copy()
 
     def _update_health_label(self) -> None:
         if self._player.health:
@@ -131,6 +132,11 @@ class GameEngine(arcade.Window):
             self._video.update()
             if self._video.is_finished:
                 self._playing_video = False
+                if self._between_levels:
+                    self._between_levels = False
+                    self._current_level += 1
+                    self._start_next_level()
+                    self._update_level_label()
             return
         if self._in_menu or self._game_over:
             return
@@ -139,20 +145,20 @@ class GameEngine(arcade.Window):
 
         bullets_to_remove = []
         for bullet in self._bullets.all_bullets:
-            for enemies in self._enemies:
-                if enemies.health and enemies.health.is_alive:
-                    distance = (bullet.position - enemies.rigid_body.position).length
+            for enemy in self._enemies:
+                if enemy.health and enemy.health.is_alive:
+                    distance = (bullet.position - enemy.rigid_body.position).length
                     if distance < 50:
-                        enemies.health.take_damage(bullet.damage)
+                        enemy.health.take_damage(bullet.damage)
                         bullets_to_remove.append(bullet)
                         break
         for bullet in bullets_to_remove:
             if bullet in self._bullets.all_bullets:
                 self._bullets.kill(bullet)
 
-        for enemies in self._enemies:
-            other_enemies = [enemy for enemy in self._enemies if enemy.health and enemy.health.is_alive]
-            enemies.update(delta_time, other_enemies)
+        for enemy in self._enemies:
+            other_enemies = [e for e in self._enemies if e.health and e.health.is_alive]
+            enemy.update(delta_time, other_enemies)
 
         self._enemies = [enemy for enemy in self._enemies
                          if enemy.health and enemy.health.is_alive]
@@ -166,6 +172,16 @@ class GameEngine(arcade.Window):
             return
         if self._playing_video:
             self._video.stop()
+            if self._between_levels:
+                self._between_levels = False
+                self._playing_video = False
+                self._current_level += 1
+                if self._current_level >= len(self._levels):
+                    self._game_over = True
+                else:
+                    self._start_next_level()
+                    self._update_level_label()
+            return
         if self._in_menu:
             clicked_button = self._menu.click(x, y)
             if clicked_button == 'exit':
@@ -196,8 +212,10 @@ class GameEngine(arcade.Window):
     def on_draw(self) -> None:
         self.clear()
         if self._playing_video:
+            self.use()
             self._video.draw(self.width / 2, self.height / 2, self.width, self.height)
         elif self._in_menu:
+            self.use()
             self._menu.draw()
         else:
             self._tile_map.sprite_lists["down1"].draw()
@@ -210,3 +228,6 @@ class GameEngine(arcade.Window):
             self._tile_map.sprite_lists["Big_tree"].draw()
             self._tile_map.sprite_lists["border"].draw()
             self._ui_manager.draw()
+
+    def use(self) -> None:
+        self.default_camera.use()

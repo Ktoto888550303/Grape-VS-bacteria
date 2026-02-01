@@ -9,8 +9,8 @@ from health import Health
 
 ENEMY_SPEED = 200
 ENEMY_RADIUS = 30
-NORMAL_ENEMY_DAMAGE = 20
-NORMAL_ENEMY_HEALTH = 100
+ENEMY_DAMAGE = 20
+ENEMY_HEALTH = 100
 
 FAST_ENEMY_SPEED = 270
 FAST_ENEMY_DAMAGE = 10
@@ -43,10 +43,10 @@ class EnemySpawner:
         enemy_body = RigidBody(position, Vector2.zero())
 
         if name == "base":
-            enemy = Enemy(enemy_body, self._player, _speed=ENEMY_SPEED, _damage=NORMAL_ENEMY_DAMAGE)
+            enemy = Enemy(enemy_body, self._player, _speed=ENEMY_SPEED, _damage=ENEMY_DAMAGE)
             enemy.set_walk_animation(self._walk_animation)
             enemy.set_damage_texture(self._damage_texture)
-            enemy_health = Health(max_hp=NORMAL_ENEMY_HEALTH)
+            enemy_health = Health(max_hp=ENEMY_HEALTH)
             enemy.set_health(enemy_health)
             return enemy
         elif name == "fast":
