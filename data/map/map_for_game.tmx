@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="new.tsx"/>
  <tileset firstgid="129" source="decorate.tsx"/>
  <tileset firstgid="385" source="water.tsx"/>
- <tileset firstgid="577" source="../../../../Documents/tiels map/new.tsx"/>
+ <tileset firstgid="577" source="new.tsx"/>
  <layer id="1" name="down1" width="100" height="100">
   <data encoding="csv">
 19,20,21,39,18,39,17,39,18,21,21,20,19,19,21,20,20,18,18,19,19,21,20,21,17,20,20,17,17,20,19,39,17,21,21,19,17,17,19,18,18,21,21,19,17,19,39,39,39,39,20,20,20,21,39,19,21,21,39,39,19,18,21,39,20,20,17,21,39,20,39,39,21,21,20,19,20,17,20,39,20,17,20,21,17,21,39,21,20,21,21,39,19,21,21,20,19,19,19,20,
