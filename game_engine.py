@@ -33,6 +33,7 @@ class GameEngine(arcade.Window):
         self._current_level = 0
         self._levels = list()
 
+        self._end_texture = arcade.load_texture(Path("data") / "scene" / "end.png")
         map_name = Path("data") / "map" / "map_for_game.tmx"
         self._tile_map = arcade.load_tilemap(map_name, scaling=2.5)
 
@@ -170,7 +171,11 @@ class GameEngine(arcade.Window):
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
         if button != arcade.MOUSE_BUTTON_LEFT:
             return
-        if self._playing_video:
+        if self._game_over:
+            self._game_over = False
+            self._in_menu = True
+            return
+        if self._playing_video and not self._between_levels:
             self._video.stop()
             if self._between_levels:
                 self._between_levels = False
@@ -200,17 +205,26 @@ class GameEngine(arcade.Window):
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         if symbol == arcade.key.ESCAPE:
             self.set_fullscreen(False)
+        if self._game_over:
+            return
         if not self._in_menu:
             self.pressed_keys.add(symbol)
             self._keyboard_state_changed.invoke(self.pressed_keys)
 
     def on_key_release(self, symbol: int, modifiers: int) -> None:
-        if not self._in_menu:
+        if not self._in_menu and not self._game_over:
             self.pressed_keys.discard(symbol)
             self._keyboard_state_changed.invoke(self.pressed_keys)
 
     def on_draw(self) -> None:
         self.clear()
+        if self._game_over:
+            self.use()
+            arcade.draw_texture_rect(
+                self._end_texture,
+                arcade.rect.XYWH(self.width / 2, self.height / 2, self.width, self.height)
+            )
+            return
         if self._playing_video:
             self.use()
             self._video.draw(self.width / 2, self.height / 2, self.width, self.height)
